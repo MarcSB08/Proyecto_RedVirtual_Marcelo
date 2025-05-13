@@ -22,7 +22,6 @@ namespace Proyecto_RedVirtual_Marcelo
         {
             ColaRecibidos = new Cola<Paquete>(10);
             MensajesRecibidos = new List<Mensaje>();
-            MensajesEnProceso = new Dictionary<string, Mensaje>();
         }
 
         public void CrearMensaje(string ip_destino, string contenido)
@@ -46,8 +45,8 @@ namespace Proyecto_RedVirtual_Marcelo
         {
             if (!ColaRecibidos.ColaLlena())
             {
+                paquete.Estado = "Recibido";
                 ColaRecibidos.Insertar(paquete);
-                ProcesarPaquetesRecibidos();
                 return true;
             }
             return false;
@@ -55,25 +54,47 @@ namespace Proyecto_RedVirtual_Marcelo
 
         public void ProcesarPaquetesRecibidos()
         {
-            while (!ColaRecibidos.ColaVacia())
+            if (ColaRecibidos.ColaVacia()) return;
+
+            var paquetes_por_mensaje = new Dictionary<string, List<Paquete>>();
+
+            foreach (var paquete in ColaRecibidos.ObtenerElementos())
             {
-                var paquete = ColaRecibidos.FrenteCola();
-
-                var clave = $"{paquete.IPOrigen}-{paquete.NumeroSecuencia}";
-                if (!MensajesEnProceso.ContainsKey(clave))
+                string clave = $"{paquete.IPOrigen}-{paquete.IPDestino}";
+                if (!paquetes_por_mensaje.ContainsKey(clave))
                 {
-                    var mensaje = new Mensaje(paquete.IPOrigen, this.IP, "");
-                    MensajesEnProceso[clave] = mensaje;
+                    paquetes_por_mensaje[clave] = new List<Paquete>();
                 }
+                paquetes_por_mensaje[clave].Add(paquete);
+            }
 
-                var mensaje_actual = MensajesEnProceso[clave];
-                mensaje_actual.Paquetes.Add(ColaRecibidos.Quitar());
+            foreach (var grupo in paquetes_por_mensaje)
+            {
+                var paquetes = grupo.Value.OrderBy(p => p.NumeroSecuencia).ToList();
+                bool tiene_fin = paquetes.Any(p => p.Dato == '\0');
 
-                if (paquete.Dato == '\0')
+                if (tiene_fin)
                 {
-                    mensaje_actual.VerificarIntegridad();
-                    MensajesRecibidos.Add(mensaje_actual);
-                    MensajesEnProceso.Remove(clave);
+                    string contenido = "";
+                    foreach (var p in paquetes.Where(p => p.Dato != '\0').OrderBy(p => p.NumeroSecuencia))
+                    {
+                        contenido += p.Dato;
+                    }
+
+                    var mensaje = new Mensaje(paquetes.First().IPOrigen, paquetes.First().IPDestino, contenido);
+                    mensaje.Paquetes = paquetes;
+                    mensaje.VerificarIntegridad();
+                    MensajesRecibidos.Add(mensaje);
+
+                    var nueva_cola = new Cola<Paquete>(10);
+                    foreach (var p in ColaRecibidos.ObtenerElementos())
+                    {
+                        if (!paquetes.Contains(p))
+                        {
+                            nueva_cola.Insertar(p);
+                        }
+                    }
+                    ColaRecibidos = nueva_cola;
                 }
             }
         }
@@ -91,7 +112,7 @@ namespace Proyecto_RedVirtual_Marcelo
             {
                 foreach (var mensaje in MensajesRecibidos)
                 {
-                    sb.AppendLine(mensaje.ToString());
+                    sb.AppendLine($"{mensaje.IPOrigen} -> {mensaje.Dato} - Estado: {mensaje.Estado}");
                 }
             }
 

@@ -29,7 +29,7 @@ namespace Proyecto_RedVirtual_Marcelo
         {
             if (!ColaPaquetes.ColaLlena())
             {
-                paquete.Estado = $"Recibido";
+                paquete.Estado = "Recibido";
                 ColaPaquetes.Insertar(paquete);
                 return true;
             }
@@ -41,7 +41,7 @@ namespace Proyecto_RedVirtual_Marcelo
             if (!ColaPaquetes.ColaVacia())
             {
                 var paquete = ColaPaquetes.Quitar();
-                paquete.Estado = $"Enviado";
+                paquete.Estado = "Enviado";
                 return paquete;
             }
             return null;
