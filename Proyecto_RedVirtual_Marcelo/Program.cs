@@ -33,10 +33,13 @@ namespace Proyecto_RedVirtual_Marcelo
                         red.MostrarStatusRed();
                         break;
                     case "5":
+                        red.MostrarStatusSubRed();
                         break;
                     case "6":
+                        red.MostrarStatusEquipo();
                         break;
                     case "7":
+                        red.EliminarPaquete();
                         break;
                     case "8":
                         break;

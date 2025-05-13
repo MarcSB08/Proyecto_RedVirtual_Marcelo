@@ -12,7 +12,7 @@ namespace Proyecto_RedVirtual_Marcelo
         private int Frente;
         private int Final;
         private readonly T[] ListaCola;
-        private readonly int MaxTam;
+        public readonly int MaxTam;
 
         public Cola(int tamano = 10)
         {

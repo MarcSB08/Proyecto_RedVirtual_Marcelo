@@ -10,7 +10,7 @@ namespace Proyecto_RedVirtual_Marcelo
     {
         #region Atributos
 
-        public Cola<Paquete> ColaRecibidos { get; private set; }
+        public Cola<Paquete> ColaRecibidos { get; set; }
         public List<Mensaje> MensajesRecibidos { get; private set; }
         public Dictionary<string, Mensaje> MensajesEnProceso { get; private set; }
 

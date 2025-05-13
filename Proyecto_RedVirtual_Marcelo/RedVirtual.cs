@@ -175,7 +175,7 @@ namespace Proyecto_RedVirtual_Marcelo
             Interfaz.Continuar();
         }
 
-        public void EnviarPaquetes()  // Opción 3 del menú
+        public void EnviarPaquetes()  //Opcion 3
         {
             Console.Clear();
             Console.WriteLine("=== ENVIAR PAQUETES ===");
@@ -197,118 +197,111 @@ namespace Proyecto_RedVirtual_Marcelo
                 }
 
                 Console.Write("\nIngrese IP del dispositivo que enviará (ej: 190.01 o 190.0): ");
-                string ipOrigen = Console.ReadLine().Trim();
+                string ip_origen = Console.ReadLine().Trim();
 
-                Dispositivo dispositivoOrigen = null;
-                SubRed subRedOrigen = null;
+                Dispositivo dispositivo_origen = null;
+                SubRed subred_origen = null;
 
                 foreach (var subred in SubRedes)
                 {
-                    if (subred.PC.IP == ipOrigen)
+                    if (subred.PC.IP == ip_origen)
                     {
-                        dispositivoOrigen = subred.PC;
-                        subRedOrigen = subred;
+                        dispositivo_origen = subred.PC;
+                        subred_origen = subred;
                         break;
                     }
-                    if (subred.Router.IP == ipOrigen)
+                    if (subred.Router.IP == ip_origen)
                     {
-                        dispositivoOrigen = subred.Router;
-                        subRedOrigen = subred;
+                        dispositivo_origen = subred.Router;
+                        subred_origen = subred;
                         break;
                     }
                 }
 
-                if (dispositivoOrigen == null)
+                if (dispositivo_origen == null)
                 {
                     Interfaz.Error("No se encontró el dispositivo");
                     Interfaz.Continuar();
                     return;
                 }
 
-                // Obtener paquete a enviar
-                Paquete paquete = null;
-                if (!dispositivoOrigen.ColaPaquetes.ColaVacia())
-                {
-                    paquete = dispositivoOrigen.ColaPaquetes.FrenteCola();
-                }
-                else
+                if (dispositivo_origen.ColaPaquetes.ColaVacia())
                 {
                     Interfaz.Error("El dispositivo no tiene paquetes para enviar");
                     Interfaz.Continuar();
                     return;
                 }
 
-                Dispositivo siguienteDispositivo = null;
+                Paquete paquete = dispositivo_origen.ColaPaquetes.FrenteCola();
+                Dispositivo siguiente_dispositivo = null;
                 string accion = "";
 
-                if (dispositivoOrigen is PC)
+                if (dispositivo_origen is PC)
                 {
-                    // Envío desde PC a Router local
-                    siguienteDispositivo = subRedOrigen.Router;
-                    accion = $"enviado desde PC {ipOrigen} a Router local {siguienteDispositivo.IP}";
+                    siguiente_dispositivo = subred_origen.Router;
+                    accion = $"enviado desde PC {ip_origen} a Router local {siguiente_dispositivo.IP}";
                 }
-                else if (dispositivoOrigen is Router routerOrigen)
+                else if (dispositivo_origen is Router router_origen)
                 {
-                    var ipDestino = paquete.IPDestino;
-                    var subRedDestino = SubRedes.FirstOrDefault(s => s.PC.IP == ipDestino);
+                    var ip_destino = paquete.IPDestino;
+                    var subred_destino = SubRedes.FirstOrDefault(s => s.PC.IP == ip_destino);
 
-                    if (subRedDestino == null)
+                    if (subred_destino == null)
                     {
-                        Interfaz.Error($"No existe destino {ipDestino}");
+                        Interfaz.Error($"No existe destino {ip_destino}");
                         paquete.Estado = "Dañado";
-                        dispositivoOrigen.ColaPaquetes.Insertar(dispositivoOrigen.ColaPaquetes.Quitar());
+                        var paquete_dañado = dispositivo_origen.ColaPaquetes.Quitar();
+                        dispositivo_origen.ColaPaquetes.Insertar(paquete_dañado);
                         Interfaz.Continuar();
                         return;
                     }
 
-                    if (routerOrigen.Red == subRedDestino.Router.Red)
+                    if (router_origen.Red == subred_destino.Router.Red)
                     {
-                        // Misma red - enviar directamente al PC destino
-                        siguienteDispositivo = subRedDestino.PC;
-                        accion = $"enviado desde Router {ipOrigen} a PC destino {siguienteDispositivo.IP}";
+                        siguiente_dispositivo = subred_destino.PC;
+                        accion = $"enviado desde Router {ip_origen} a PC destino {siguiente_dispositivo.IP}";
                     }
                     else
                     {
-                        // Red diferente - enviar al router destino
-                        siguienteDispositivo = subRedDestino.Router;
-                        accion = $"enrutado desde Router {ipOrigen} a Router {siguienteDispositivo.IP}";
+                        siguiente_dispositivo = subred_destino.Router;
+                        accion = $"enrutado desde Router {ip_origen} a Router {siguiente_dispositivo.IP}";
                     }
                 }
 
-                // Procesar el envío
-                if (siguienteDispositivo != null)
+                if (siguiente_dispositivo != null)
                 {
-                    bool envioExitoso = false;
+                    bool envio_exitoso = false;
 
-                    if (siguienteDispositivo is PC pcDestino)
+                    if (siguiente_dispositivo is PC pc_destino)
                     {
-                        envioExitoso = pcDestino.RecibirPaquete(paquete);
-                        if (envioExitoso)
+                        envio_exitoso = pc_destino.RecibirPaquete(paquete);
+                        if (envio_exitoso)
                         {
-                            pcDestino.ProcesarPaquetesRecibidos();
-                            paquete.Estado = "Recibido";
-                            dispositivoOrigen.ColaPaquetes.Quitar(); // Solo quitamos si se envió con éxito
-                        }
-                    }
-                    else
-                    {
-                        envioExitoso = siguienteDispositivo.RecibirPaquete(paquete);
-                        if (envioExitoso)
-                        {
+                            dispositivo_origen.ColaPaquetes.Quitar();
+                            pc_destino.ProcesarPaquetesRecibidos();
                             paquete.Estado = "Enviado";
-                            dispositivoOrigen.ColaPaquetes.Quitar(); // Solo quitamos si se envió con éxito
+                            Console.WriteLine($"\nPaquete {paquete.NumeroSecuencia} {accion}");
                         }
-                    }
-
-                    if (envioExitoso)
-                    {
-                        Console.WriteLine($"\nPaquete {paquete.NumeroSecuencia} {accion}");
                     }
                     else
                     {
-                        paquete.Estado = "Devuelto";
-                        // El paquete ya está en la cola (no se quitó), solo se actualiza el estado
-                        Interfaz.Error($"Cola llena en {siguienteDispositivo.IP}, paquete devuelto a {ipOrigen}");
+                        envio_exitoso = siguiente_dispositivo.RecibirPaquete(paquete);
+                        if (envio_exitoso)
+                        {
+                            dispositivo_origen.ColaPaquetes.Quitar();
+                            paquete.Estado = "Enviado";
+                            Console.WriteLine($"\nPaquete {paquete.NumeroSecuencia} {accion}");
+                        }
+                    }
+
+                    if (!envio_exitoso)
+                    {
+                        var paquete_devuelto = dispositivo_origen.ColaPaquetes.Quitar();
+                        paquete_devuelto.Estado = "Devuelto";
+                        dispositivo_origen.ColaPaquetes.Insertar(paquete_devuelto);
+
+                        Console.WriteLine($"\n¡Cola llena en {siguiente_dispositivo.IP}! " +
+                                        $"Paquete {paquete_devuelto.NumeroSecuencia} devuelto a {ip_origen}");
                     }
                 }
             }
@@ -320,7 +313,7 @@ namespace Proyecto_RedVirtual_Marcelo
             Interfaz.Continuar();
         }
 
-        public void MostrarStatusRed()
+        public void MostrarStatusRed()  // Opcion 4
         {
             if (SubRedes.Count == 0)
             {
@@ -410,6 +403,66 @@ namespace Proyecto_RedVirtual_Marcelo
             }
         }
 
+        public void MostrarStatusSubRed()  // Opcion 5
+        {
+            Console.Clear();
+            Console.WriteLine("=== ESTADO DE SUBRED ===");
+
+            if (SubRedes.Count == 0)
+            {
+                Interfaz.Error("No hay subredes configuradas.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            Console.WriteLine("\nSubRedes disponibles:");
+            foreach (var subred in SubRedes)
+            {
+                Console.WriteLine($"- SubRed ({subred.Numero}): Router {subred.Router.IP}, PC {subred.PC.IP}");
+            }
+
+            Console.Write("\nIngrese el número de la SubRed a mostrar (1, 2, 3, etc): ");
+            if (!int.TryParse(Console.ReadLine(), out int numero_subred) || numero_subred <= 0 || numero_subred > SubRedes.Count)
+            {
+                Interfaz.Error("Número de SubRed inválido.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            var subred_seleccionada = SubRedes[numero_subred - 1];
+
+            Console.Clear();
+            Console.WriteLine($"=== ESTADO DE SUBRED {subred_seleccionada.Numero} ===");
+            Console.WriteLine($"Router: {subred_seleccionada.Router.IP}");
+            Console.WriteLine($"PC: {subred_seleccionada.PC.IP}");
+
+            Console.WriteLine("\n[ROUTER]");
+            Console.WriteLine($"Paquetes en cola ({subred_seleccionada.Router.ColaPaquetes.Tamano()}/4):");
+            MostrarColaPaquetes(subred_seleccionada.Router.ColaPaquetes);
+
+            Console.WriteLine("\n[PC]");
+            Console.WriteLine($"Paquetes para enviar ({subred_seleccionada.PC.ColaPaquetes.Tamano()}/10):");
+            MostrarColaPaquetes(subred_seleccionada.PC.ColaPaquetes);
+
+            Console.WriteLine($"\nPaquetes recibidos ({subred_seleccionada.PC.ColaRecibidos.Tamano()}/10):");
+            MostrarColaPaquetes(subred_seleccionada.PC.ColaRecibidos);
+
+            Console.WriteLine($"\nMensajes completos recibidos:");
+            if (subred_seleccionada.PC.MensajesRecibidos.Count == 0)
+            {
+                Console.WriteLine("(No hay mensajes completos)");
+            }
+            else
+            {
+                foreach (var mensaje in subred_seleccionada.PC.MensajesRecibidos)
+                {
+                    Console.WriteLine($"- {mensaje.Dato} | Origen: {mensaje.IPOrigen} | Estado: {mensaje.Estado}");
+                }
+            }
+
+            Interfaz.Continuar();
+        }
+
         private void MostrarColaPaquetes(Cola<Paquete> cola)
         {
             if (cola.ColaVacia())
@@ -420,12 +473,187 @@ namespace Proyecto_RedVirtual_Marcelo
 
             foreach (var paquete in cola.ObtenerElementos())
             {
-                string estado = paquete.Estado.PadRight(10).Substring(0, 10);
+                string estado = paquete.Estado.PadRight(10);
                 string dato = paquete.Dato == '\0' ? "[FIN]" : $"'{paquete.Dato}'";
                 Console.WriteLine($"   - Paquete {paquete.NumeroSecuencia.ToString().PadLeft(2)} " +
                                 $"[{estado}] {dato} | " +
                                 $"{paquete.IPOrigen} → {paquete.IPDestino}");
             }
+        }
+
+        public void MostrarStatusEquipo()  // Opcion 6
+        {
+            Console.Clear();
+            Console.WriteLine("=== ESTADO DE EQUIPO ===");
+
+            if (SubRedes.Count == 0)
+            {
+                Interfaz.Error("No hay equipos configurados.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            Console.WriteLine("\nEquipos disponibles:");
+            foreach (var subred in SubRedes)
+            {
+                Console.WriteLine($"- PC: {subred.PC.IP}");
+                Console.WriteLine($"- Router: {subred.Router.IP}");
+            }
+
+            Console.Write("\nIngrese la IP del equipo a mostrar (ej: 192.01 o 192.0): ");
+            string ip_equipo = Console.ReadLine().Trim();
+
+            Dispositivo equipo = null;
+            foreach (var subred in SubRedes)
+            {
+                if (subred.PC.IP == ip_equipo)
+                {
+                    equipo = subred.PC;
+                    break;
+                }
+                if (subred.Router.IP == ip_equipo)
+                {
+                    equipo = subred.Router;
+                    break;
+                }
+            }
+
+            if (equipo == null)
+            {
+                Interfaz.Error("No se encontró el equipo con esa IP.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            Console.Clear();
+            Console.WriteLine($"=== ESTADO DE EQUIPO {equipo.IP} ===");
+            Console.WriteLine($"Tipo: {equipo.Tipo}");
+            Console.WriteLine($"SubRed: {SubRedes.First(s => s.Router.IP == ip_equipo || s.PC.IP == ip_equipo).Numero}");
+
+            if (equipo is PC pc)
+            {
+                Console.WriteLine($"\n[COLA DE ENVÍO] ({pc.ColaPaquetes.Tamano()}/10):");
+                MostrarColaPaquetes(pc.ColaPaquetes);
+
+                Console.WriteLine($"\n[COLA DE RECIBIDOS] ({pc.ColaRecibidos.Tamano()}/10):");
+                MostrarColaPaquetes(pc.ColaRecibidos);
+
+                Console.WriteLine($"\n[MENSAJES COMPLETOS] ({pc.MensajesRecibidos.Count}):");
+                if (pc.MensajesRecibidos.Count == 0)
+                {
+                    Console.WriteLine("(No hay mensajes completos)");
+                }
+                else
+                {
+                    foreach (var mensaje in pc.MensajesRecibidos)
+                    {
+                        Console.WriteLine($"- {mensaje.Dato} | Origen: {mensaje.IPOrigen} | Estado: {mensaje.Estado}");
+                    }
+                }
+            }
+            else if (equipo is Router router)
+            {
+                Console.WriteLine($"\n[COLA DE PAQUETES] ({router.ColaPaquetes.Tamano()}/4):");
+                MostrarColaPaquetes(router.ColaPaquetes);
+
+                Console.WriteLine($"\n[RED ASOCIADA]: {router.Red}");
+            }
+
+            Interfaz.Continuar();
+        }
+
+        public void EliminarPaquete()  // Opcion 7
+        {
+            Console.Clear();
+            Console.WriteLine("=== ELIMINAR PAQUETE (SIMULAR PÉRDIDA EN TRANSMISIÓN) ===");
+
+            if (SubRedes.Count == 0)
+            {
+                Interfaz.Error("No hay equipos configurados.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            Console.WriteLine("\nEquipos disponibles:");
+            foreach (var subred in SubRedes)
+            {
+                Console.WriteLine($"- PC: {subred.PC.IP}");
+                Console.WriteLine($"- Router: {subred.Router.IP}");
+            }
+
+            Console.Write("\nIngrese la IP del equipo: ");
+            string ip_equipo = Console.ReadLine().Trim();
+
+            Dispositivo equipo = null;
+            foreach (var subred in SubRedes)
+            {
+                if (subred.PC.IP == ip_equipo)
+                {
+                    equipo = subred.PC;
+                    break;
+                }
+                if (subred.Router.IP == ip_equipo)
+                {
+                    equipo = subred.Router;
+                    break;
+                }
+            }
+
+            if (equipo == null)
+            {
+                Interfaz.Error("No se encontró el equipo con esa IP.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            Console.WriteLine($"\nPaquetes en cola de envío de {equipo.Tipo} {equipo.IP}:");
+            if (equipo.ColaPaquetes.ColaVacia())
+            {
+                Interfaz.Error("El equipo no tiene paquetes en cola de envío.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            MostrarColaPaquetes(equipo.ColaPaquetes);
+
+            Console.Write("\nIngrese el número de secuencia del paquete a eliminar: ");
+            if (!int.TryParse(Console.ReadLine(), out int numero_secuencia) || numero_secuencia <= 0)
+            {
+                Interfaz.Error("Número de secuencia inválido.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            bool eliminado = false;
+            int capacidad_cola = (equipo is PC) ? 10 : 4;
+            var nueva_cola = new Cola<Paquete>(capacidad_cola);
+
+            foreach (var paquete in equipo.ColaPaquetes.ObtenerElementos())
+            {
+                if (paquete.NumeroSecuencia != numero_secuencia)
+                {
+                    nueva_cola.Insertar(paquete);
+                }
+                else
+                {
+                    eliminado = true;
+                    Console.WriteLine($"\nPaquete {numero_secuencia} eliminado de {equipo.IP} (simulando pérdida en transmisión)");
+                }
+            }
+
+            if (!eliminado)
+            {
+                Interfaz.Error($"No se encontró el paquete {numero_secuencia} en la cola de envío de {equipo.IP}");
+                Interfaz.Continuar();
+                return;
+            }
+
+            equipo.ColaPaquetes = nueva_cola;
+
+            Console.WriteLine("\nEstado actualizado de la cola de envío:");
+            MostrarColaPaquetes(equipo.ColaPaquetes);
+
+            Interfaz.Continuar();
         }
 
         #endregion

@@ -12,7 +12,7 @@ namespace Proyecto_RedVirtual_Marcelo
 
         public string IP { get; protected set; }
         public string Tipo { get; protected set; }
-        public Cola<Paquete> ColaPaquetes { get; protected set; }
+        public Cola<Paquete> ColaPaquetes { get; set; }
 
         #endregion
 
