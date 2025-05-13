@@ -656,6 +656,169 @@ namespace Proyecto_RedVirtual_Marcelo
             Interfaz.Continuar();
         }
 
+        public void VisualizarMensajesRecibidos()  // Opcion 8
+        {
+            Console.Clear();
+            Console.WriteLine("=== MENSAJES RECIBIDOS ===");
+
+            if (SubRedes.Count == 0)
+            {
+                Interfaz.Error("No hay equipos configurados.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            Console.WriteLine("\nPCs disponibles:");
+            foreach (var subred in SubRedes)
+            {
+                Console.WriteLine($"- PC: {subred.PC.IP}");
+            }
+
+            Console.Write("\nIngrese la IP del PC (formato X.01): ");
+            string ip_PC = Console.ReadLine().Trim();
+
+            PC pc = null;
+            foreach (var subred in SubRedes)
+            {
+                if (subred.PC.IP == ip_PC)
+                {
+                    pc = subred.PC;
+                    break;
+                }
+            }
+
+            if (pc == null)
+            {
+                Interfaz.Error("No se encontró un PC con esa IP.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            Console.Clear();
+            Console.WriteLine($"=== MENSAJES RECIBIDOS EN PC {pc.IP} ===");
+
+            if (pc.MensajesRecibidos.Count == 0)
+            {
+                Console.WriteLine("\nNo hay mensajes recibidos.");
+            }
+            else
+            {
+                Console.WriteLine("\nLista de mensajes recibidos:");
+                Console.WriteLine("------------------------------------------------------------");
+                Console.WriteLine("| Fecha Recepción | Origen   | Contenido           | Estado  |");
+                Console.WriteLine("------------------------------------------------------------");
+
+                foreach (var mensaje in pc.MensajesRecibidos.OrderBy(m => m.FechaCreacion))
+                {
+                    string contenido = mensaje.Dato.Length > 20 ? mensaje.Dato.Substring(0, 17) + "..." : mensaje.Dato;
+                    string estado = mensaje.Estado == "Recibido" ? "Recibido" : "Dañado  ";
+
+                    Console.WriteLine($"| {mensaje.FechaCreacion:yyyy-MM-dd HH:mm} | {mensaje.IPOrigen.PadRight(8)} | {contenido.PadRight(20)} | {estado} |");
+                }
+
+                Console.WriteLine("------------------------------------------------------------");
+
+                int recibidos = pc.MensajesRecibidos.Count(m => m.Estado == "Recibido");
+                int danados = pc.MensajesRecibidos.Count(m => m.Estado == "Dañado");
+
+                Console.WriteLine($"\nEstadísticas: {recibidos} recibidos correctamente | {danados} dañados");
+            }
+
+            Interfaz.Continuar();
+        }
+
+        public void ConsultarPaquete()  // Opcion 9
+        {
+            Console.Clear();
+            Console.WriteLine("=== CONSULTAR PAQUETE ===");
+
+            if (SubRedes.Count == 0)
+            {
+                Interfaz.Error("No hay equipos configurados.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            Console.Write("\nIngrese el número de secuencia del paquete: ");
+            if (!int.TryParse(Console.ReadLine(), out int numero_secuencia) || numero_secuencia <= 0)
+            {
+                Interfaz.Error("Número de secuencia inválido.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            bool encontrado = false;
+
+            Console.WriteLine("\nBuscando paquete en la red...");
+
+            foreach (var subred in SubRedes)
+            {
+                var info_router = BuscarPaqueteEnDispositivo(subred.Router, numero_secuencia);
+                if (info_router.Encontrado)
+                {
+                    MostrarInfoPaquete(info_router, subred.Router);
+                    encontrado = true;
+                }
+
+                var info_PCEnvio = BuscarPaqueteEnDispositivo(subred.PC, numero_secuencia);
+                if (info_PCEnvio.Encontrado)
+                {
+                    MostrarInfoPaquete(info_PCEnvio, subred.PC, "Cola de Envío");
+                    encontrado = true;
+                }
+
+                var info_PCRecibidos = BuscarPaqueteEnCola(subred.PC.ColaRecibidos, numero_secuencia, subred.PC);
+                if (info_PCRecibidos.Encontrado)
+                {
+                    MostrarInfoPaquete(info_PCRecibidos, subred.PC, "Cola de Recibidos");
+                    encontrado = true;
+                }
+            }
+
+            if (!encontrado)
+            {
+                Console.WriteLine("\nEl paquete no se encuentra en ningún equipo de la red.");
+            }
+
+            Interfaz.Continuar();
+        }
+
+        private (bool Encontrado, int Posicion, Paquete Paquete) BuscarPaqueteEnDispositivo(Dispositivo dispositivo, int numeroSecuencia)
+        {
+            return BuscarPaqueteEnCola(dispositivo.ColaPaquetes, numeroSecuencia, dispositivo);
+        }
+
+        private (bool Encontrado, int Posicion, Paquete Paquete) BuscarPaqueteEnCola(Cola<Paquete> cola, int numeroSecuencia, Dispositivo dispositivo)
+        {
+            int posicion = 1;
+            foreach (var paquete in cola.ObtenerElementos())
+            {
+                if (paquete.NumeroSecuencia == numeroSecuencia)
+                {
+                    return (true, posicion, paquete);
+                }
+                posicion++;
+            }
+            return (false, 0, null);
+        }
+
+        private void MostrarInfoPaquete((bool Encontrado, int Posicion, Paquete Paquete) info, Dispositivo dispositivo, string tipoCola = "Cola de Paquetes")
+        {
+            Console.WriteLine("\n══════════════════════════════════════");
+            Console.WriteLine("  INFORMACIÓN DEL PAQUETE ENCONTRADO");
+            Console.WriteLine("══════════════════════════════════════");
+            Console.WriteLine($"- Número de secuencia: {info.Paquete.NumeroSecuencia}");
+            Console.WriteLine($"- Dato: {(info.Paquete.Dato == '\0' ? "[FIN]" : $"'{info.Paquete.Dato}'")}");
+            Console.WriteLine($"- Estado: {info.Paquete.Estado}");
+            Console.WriteLine($"- Origen: {info.Paquete.IPOrigen}");
+            Console.WriteLine($"- Destino: {info.Paquete.IPDestino}");
+            Console.WriteLine($"\n- Ubicación actual:");
+            Console.WriteLine($"  > Equipo: {dispositivo.IP} ({dispositivo.Tipo})");
+            Console.WriteLine($"  > Cola: {tipoCola}");
+            Console.WriteLine($"  > Posición: {info.Posicion} de {dispositivo.ColaPaquetes.Tamano()}");
+            Console.WriteLine("══════════════════════════════════════\n");
+        }
+
         #endregion
     }
 }

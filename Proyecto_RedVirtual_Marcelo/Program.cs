@@ -42,8 +42,10 @@ namespace Proyecto_RedVirtual_Marcelo
                         red.EliminarPaquete();
                         break;
                     case "8":
+                        red.VisualizarMensajesRecibidos();
                         break;
                     case "9":
+                        red.ConsultarPaquete();
                         break;
                     case "0":
                         Console.WriteLine("Saliendo del programa...");
