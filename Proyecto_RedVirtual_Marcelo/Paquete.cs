@@ -29,11 +29,6 @@ namespace Proyecto_RedVirtual_Marcelo
             Estado = "Nuevo";
         }
 
-        public override string ToString()
-        {
-            return $"Paquete {NumeroSecuencia}: {IPOrigen} -> {IPDestino}, Dato: '{Dato}', Estado: {Estado}";
-        }
-
         #endregion
     }
 }

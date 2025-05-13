@@ -25,10 +25,43 @@ namespace Proyecto_RedVirtual_Marcelo
         public void ConfigurarRed()  //Opcion 1
         {
             Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.WriteLine("=== CONFIGURACIÓN DE LA RED ===");
+            Console.ResetColor();
 
             int cantidad_subredes = 0;
+            string opcion = "";
             bool key = false;
+
+            if (SubRedes.Count != 0)
+            {
+                do
+                {
+                    Console.WriteLine("\nYa hay una red existente, desea eliminarla y crear una nueva?");
+                    Console.Write("-Opción (Si/No): ");
+
+                    opcion = Console.ReadLine().Trim().ToLower();
+                    if (opcion == "si")
+                    {
+                        SubRedes.Clear();
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("\nRed eliminada exitosamente!");
+                        Console.ResetColor();
+                    }
+                    else if (opcion == "no")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("\nRed no eliminada, volviendo al menú principal...");
+                        Console.ResetColor();
+                        Interfaz.Continuar();
+                        return;
+                    }
+                    else
+                    {
+                        Interfaz.Error("Opción no válida");
+                    }
+                } while (opcion != "si" && opcion != "no");
+            }
 
             do
             {
@@ -39,7 +72,7 @@ namespace Proyecto_RedVirtual_Marcelo
 
                     if (cantidad_subredes < 1)
                     {
-                        Interfaz.Error("La cantidad de subredes debe ser al menos 1\n");
+                        Interfaz.Error("La cantidad de subredes debe ser al menos 1.\n");
                         key = true;
                     }
                     else key = false;
@@ -47,29 +80,29 @@ namespace Proyecto_RedVirtual_Marcelo
                 catch (FormatException)
                 {
                     key = true;
-                    Interfaz.Error("Entrada no válida. Debe ingresar un número entero\n");
+                    Interfaz.Error("Entrada no válida. Debe ingresar un número entero.\n");
                 }
             } while (key);
 
-            SubRedes.Clear();  // Borra la red anterior
-
             for (int i = 1; i <= cantidad_subredes; i++)
             {
+                Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine($"\nConfiguración de la SubRed #{i}:");
+                Console.ResetColor();
 
                 string numero_red;
                 bool red_valida;
 
                 do
                 {
-                    Console.Write("Ingrese número de red (X) para la subred (ej: 180): ");
+                    Console.Write("Ingrese número de red para la subred (ej: 180): ");
                     numero_red = Console.ReadLine().Trim();
 
                     red_valida = ValidarNumeroRed(numero_red);
 
                     if (red_valida && SubRedes.Any(s => s.Router.IP.StartsWith(numero_red + ".")))
                     {
-                        Interfaz.Error("Esta red ya existe\n");
+                        Interfaz.Error("Esta red ya existe\n\n");
                         red_valida = false;
                     }
 
@@ -79,12 +112,16 @@ namespace Proyecto_RedVirtual_Marcelo
                 string ip_PC = $"{numero_red}.01";
 
                 SubRedes.Add(new SubRed(i, ip_router, ip_PC));
-                Console.WriteLine($"SubRed {i} configurada:");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"\nSubRed {i} configurada:");
+                Console.ResetColor();
                 Console.WriteLine($"- Router: {ip_router}");
                 Console.WriteLine($"- PC: {ip_PC}");
             }
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("\n¡Red configurada exitosamente!");
+            Console.ResetColor();
             Interfaz.Continuar();
         }
 
@@ -92,13 +129,13 @@ namespace Proyecto_RedVirtual_Marcelo
         {
             if (string.IsNullOrWhiteSpace(numero_red))
             {
-                Interfaz.Error("El número de red no puede estar vacío\n");
+                Interfaz.Error("El número de red no puede estar vacío\n\n");
                 return false;
             }
 
             if (!int.TryParse(numero_red, out int red) || red < 0 || red > 255)
             {
-                Interfaz.Error("El número de red debe ser entre 0 y 255\n");
+                Interfaz.Error("El número de red debe ser entre 0 y 255\n\n");
                 return false;
             }
 
@@ -108,10 +145,13 @@ namespace Proyecto_RedVirtual_Marcelo
         public void CrearMensaje()  // Opcion 2
         {
             Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkCyan;
             Console.WriteLine("=== CREAR MENSAJE ===");
+            Console.ResetColor();
 
             if (SubRedes.Count < 2)
             {
+                Console.WriteLine();
                 Interfaz.Error("Se necesitan mínimo 2 subredes para crear mensajes\n");
                 Interfaz.Continuar();
                 return;
@@ -119,7 +159,10 @@ namespace Proyecto_RedVirtual_Marcelo
 
             try
             {
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("\nPCs disponibles en la red:");
+                Console.ResetColor();
+
                 foreach (var subred in SubRedes)
                 {
                     Console.WriteLine($"- PC: {subred.PC.IP}");
@@ -136,7 +179,7 @@ namespace Proyecto_RedVirtual_Marcelo
                     return;
                 }
 
-                Console.Write("Ingrese IP destino (formato X.01): ");
+                Console.Write("\nIngrese IP destino (formato X.01): ");
                 string ip_destino = Console.ReadLine().Trim();
 
                 if (ip_destino == ip_origen)
@@ -154,7 +197,7 @@ namespace Proyecto_RedVirtual_Marcelo
                     return;
                 }
 
-                Console.Write("Ingrese el mensaje a enviar: ");
+                Console.Write("\nIngrese el mensaje a enviar: ");
                 string contenido = Console.ReadLine().Trim();
 
                 if (string.IsNullOrEmpty(contenido))
@@ -165,7 +208,9 @@ namespace Proyecto_RedVirtual_Marcelo
                 }
 
                 pc_origen.CrearMensaje(ip_destino, contenido);
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("\nMensaje creado y paquetes encolados correctamente!");
+                Console.ResetColor();
                 Console.WriteLine($"Total de paquetes generados: {pc_origen.ColaPaquetes.Tamano()}");
             }
             catch (Exception ex)
@@ -180,8 +225,10 @@ namespace Proyecto_RedVirtual_Marcelo
             Console.Clear();
             Console.WriteLine("=== ENVIAR PAQUETES ===");
 
+
             if (SubRedes.Count < 2)
             {
+                Console.WriteLine();
                 Interfaz.Error("Se necesitan al menos 2 subredes configuradas");
                 Interfaz.Continuar();
                 return;

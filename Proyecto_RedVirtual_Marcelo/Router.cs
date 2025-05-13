@@ -21,16 +21,6 @@ namespace Proyecto_RedVirtual_Marcelo
             Red = ip.Split('.')[0];
         }
 
-        public bool PerteneceARed(string ip_destino)
-        {
-            var partes_destino = ip_destino.Split('.');
-            if (partes_destino.Length < 1) return false;
-
-            string red_destino = partes_destino[0];
-
-            return red_destino == this.Red;
-        }
-
         public override string ObtenerStatus()
         {
             var status = base.ObtenerStatus();

@@ -16,7 +16,6 @@ namespace Proyecto_RedVirtual_Marcelo
             string opcion;
             do
             {
-                Console.Clear();
                 opcion = Interfaz.Menu();
                 switch (opcion)
                 {
@@ -48,12 +47,12 @@ namespace Proyecto_RedVirtual_Marcelo
                         red.ConsultarPaquete();
                         break;
                     case "0":
-                        Console.WriteLine("Saliendo del programa...");
-                        Interfaz.Continuar();
+                        Interfaz.Adios();
+                        Interfaz.ImprimirLogoUSM();
                         break;
                     default:
-                        Interfaz.Error("Opción no válida. Intente nuevamente.");
-                        Interfaz.Continuar();
+                        Interfaz.xy(17, 23); Interfaz.Error("Opción no válida. Intente nuevamente.");
+                        Console.ReadKey();
                         break;
                 }
             } while (opcion != "0");

@@ -25,25 +25,6 @@ namespace Proyecto_RedVirtual_Marcelo
             PC = new PC(ip_PC);
         }
 
-        public string ObtenerStatus()
-        {
-            var status = new StringBuilder();
-            status.AppendLine($"=== SubRed {Numero} ===");
-            status.AppendLine(Router.ObtenerStatus());
-            status.AppendLine();
-            status.AppendLine(PC.ObtenerStatus());
-            status.AppendLine();
-            status.AppendLine(PC.ObtenerMensajesRecibidos());
-
-            return status.ToString();
-        }
-
-        public bool PerteneceARed(string ip)
-        {
-            var red = Router.Red;
-            return ip.StartsWith(red + ".");
-        }
-
         #endregion
     }
 }

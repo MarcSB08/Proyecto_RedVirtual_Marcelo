@@ -36,17 +36,6 @@ namespace Proyecto_RedVirtual_Marcelo
             return false;
         }
 
-        public virtual Paquete EnviarPaquete()
-        {
-            if (!ColaPaquetes.ColaVacia())
-            {
-                var paquete = ColaPaquetes.Quitar();
-                paquete.Estado = "Enviado";
-                return paquete;
-            }
-            return null;
-        }
-
         public virtual string ObtenerStatus()
         {
             var status = new StringBuilder();

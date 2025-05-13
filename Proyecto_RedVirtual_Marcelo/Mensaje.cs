@@ -77,11 +77,6 @@ namespace Proyecto_RedVirtual_Marcelo
             return true;
         }
 
-        public override string ToString()
-        {
-            return $"Mensaje: {Dato} | {IPOrigen} -> {IPDestino} | Estado: {Estado}";
-        }
-
         #endregion
     }
 }
