@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 
 namespace Proyecto_RedVirtual_Marcelo
 {
-    #region Metodos
-
     internal class Cola<T> : IEnumerable<T>
     {
         private int Frente;
@@ -16,7 +14,7 @@ namespace Proyecto_RedVirtual_Marcelo
         private readonly T[] ListaCola;
         private readonly int MaxTam;
 
-        public Cola(int tamano = 39)
+        public Cola(int tamano = 10)
         {
             MaxTam = tamano;
             ListaCola = new T[MaxTam];
@@ -42,7 +40,17 @@ namespace Proyecto_RedVirtual_Marcelo
             {
                 T elemento = ListaCola[Frente];
                 ListaCola[Frente] = default;
-                Frente++;
+
+                if (Frente == Final)
+                {
+                    Frente = 0;
+                    Final = -1;
+                }
+                else
+                {
+                    Frente++;
+                }
+
                 return elemento;
             }
             throw new InvalidOperationException("Cola vacía");
@@ -62,6 +70,7 @@ namespace Proyecto_RedVirtual_Marcelo
         }
 
         public bool ColaVacia() => Frente > Final;
+
         public bool ColaLlena() => Final == MaxTam - 1;
 
         public int Tamano()
@@ -99,6 +108,4 @@ namespace Proyecto_RedVirtual_Marcelo
             return elementos;
         }
     }
-
-    #endregion
 }
