@@ -29,6 +29,10 @@ namespace Proyecto_RedVirtual_Marcelo
             xy(15, 17); Console.WriteLine("7. Eliminar un paquete de la cola");
             xy(15, 18); Console.WriteLine("8. Visualizar mensajes recibidos");
             xy(15, 19); Console.WriteLine("9. Consultar información de un paquete");
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            xy(65, 11); Console.WriteLine("FUNCIONES EXTRA:"); Console.ResetColor();
+            xy(65, 12); Console.WriteLine("10. Vaciar cola de un dispositivo");
             xy(15, 20); Console.WriteLine("0. Salir");
             xy(8, 23); Console.Write("-Opción: ");
 

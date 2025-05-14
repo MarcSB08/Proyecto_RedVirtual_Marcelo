@@ -46,6 +46,9 @@ namespace Proyecto_RedVirtual_Marcelo
                     case "9":
                         red.ConsultarPaquete();
                         break;
+                    case "10":
+                        red.VaciarColaDispositivo();
+                        break;
                     case "0":
                         Interfaz.Adios();
                         Interfaz.ImprimirLogoUSM();

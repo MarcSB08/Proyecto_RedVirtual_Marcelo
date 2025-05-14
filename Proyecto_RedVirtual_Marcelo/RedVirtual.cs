@@ -168,7 +168,7 @@ namespace Proyecto_RedVirtual_Marcelo
                     Console.WriteLine($"- PC: {subred.PC.IP}");
                 }
 
-                Console.Write("\nIngrese IP origen (formato X.01): ");
+                Console.Write("\nIngrese IP de origen (formato X.01): ");
                 string ip_origen = Console.ReadLine().Trim();
 
                 var pc_origen = SubRedes.Select(s => s.PC).FirstOrDefault(pc => pc.IP == ip_origen);
@@ -179,7 +179,7 @@ namespace Proyecto_RedVirtual_Marcelo
                     return;
                 }
 
-                Console.Write("\nIngrese IP destino (formato X.01): ");
+                Console.Write("\nIngrese IP de destino (formato X.01): ");
                 string ip_destino = Console.ReadLine().Trim();
 
                 if (ip_destino == ip_origen)
@@ -197,12 +197,19 @@ namespace Proyecto_RedVirtual_Marcelo
                     return;
                 }
 
-                Console.Write("\nIngrese el mensaje a enviar: ");
+                Console.Write("\nIngrese el mensaje a enviar (máx 9 caracteres): ");
                 string contenido = Console.ReadLine().Trim();
 
                 if (string.IsNullOrEmpty(contenido))
                 {
                     Interfaz.Error("El mensaje no puede estar vacío");
+                    Interfaz.Continuar();
+                    return;
+                }
+
+                if (contenido.Length > 9)
+                {
+                    Interfaz.Error("El mensaje no puede tener más de 9 caracteres");
                     Interfaz.Continuar();
                     return;
                 }
@@ -830,17 +837,17 @@ namespace Proyecto_RedVirtual_Marcelo
             Interfaz.Continuar();
         }
 
-        private (bool Encontrado, int Posicion, Paquete Paquete) BuscarPaqueteEnDispositivo(Dispositivo dispositivo, int numeroSecuencia)
+        private (bool Encontrado, int Posicion, Paquete Paquete) BuscarPaqueteEnDispositivo(Dispositivo dispositivo, int numero_secuencia)
         {
-            return BuscarPaqueteEnCola(dispositivo.ColaPaquetes, numeroSecuencia, dispositivo);
+            return BuscarPaqueteEnCola(dispositivo.ColaPaquetes, numero_secuencia, dispositivo);
         }
 
-        private (bool Encontrado, int Posicion, Paquete Paquete) BuscarPaqueteEnCola(Cola<Paquete> cola, int numeroSecuencia, Dispositivo dispositivo)
+        private (bool Encontrado, int Posicion, Paquete Paquete) BuscarPaqueteEnCola(Cola<Paquete> cola, int numero_secuencia, Dispositivo dispositivo)
         {
             int posicion = 1;
             foreach (var paquete in cola.ObtenerElementos())
             {
-                if (paquete.NumeroSecuencia == numeroSecuencia)
+                if (paquete.NumeroSecuencia == numero_secuencia)
                 {
                     return (true, posicion, paquete);
                 }
@@ -864,6 +871,149 @@ namespace Proyecto_RedVirtual_Marcelo
             Console.WriteLine($"  > Cola: {tipoCola}");
             Console.WriteLine($"  > Posición: {info.Posicion} de {dispositivo.ColaPaquetes.Tamano()}");
             Console.WriteLine("══════════════════════════════════════\n");
+        }
+
+        public void VaciarColaDispositivo()
+        {
+            Console.Clear();
+            Console.WriteLine("=== VACIAR COLA DE DISPOSITIVO ===");
+
+            if (SubRedes.Count == 0)
+            {
+                Interfaz.Error("No hay equipos configurados.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            Console.WriteLine("\nDispositivos disponibles:");
+            foreach (var subred in SubRedes)
+            {
+                Console.WriteLine($"- PC: {subred.PC.IP}");
+                Console.WriteLine($"- Router: {subred.Router.IP}");
+            }
+
+            Console.Write("\nIngrese la IP del dispositivo: ");
+            string ip_dispositivo = Console.ReadLine().Trim();
+
+            Dispositivo dispositivo = null;
+            SubRed subred_seleccionada = null;
+
+            foreach (var subred in SubRedes)
+            {
+                if (subred.PC.IP == ip_dispositivo)
+                {
+                    dispositivo = subred.PC;
+                    subred_seleccionada = subred;
+                    break;
+                }
+                if (subred.Router.IP == ip_dispositivo)
+                {
+                    dispositivo = subred.Router;
+                    subred_seleccionada = subred;
+                    break;
+                }
+            }
+
+            if (dispositivo == null)
+            {
+                Interfaz.Error("No se encontró el dispositivo con esa IP.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            if (dispositivo is PC pc)
+            {
+                Console.WriteLine("\nSeleccione qué cola desea vaciar:");
+                Console.WriteLine("1. Cola de Envío");
+                Console.WriteLine("2. Cola de Recibidos");
+                Console.Write("Opción: ");
+
+                string opcion_cola = Console.ReadLine().Trim();
+                Cola<Paquete> cola_seleccionada = null;
+                string nombre_cola = "";
+
+                switch (opcion_cola)
+                {
+                    case "1":
+                        cola_seleccionada = pc.ColaPaquetes;
+                        nombre_cola = "envío";
+                        break;
+
+                    case "2":
+                        cola_seleccionada = pc.ColaRecibidos;
+                        nombre_cola = "recibidos";
+                        break;
+
+                    default:
+                        Interfaz.Error("Opción no válida.");
+                        Interfaz.Continuar();
+                        return;
+                }
+
+                Console.WriteLine($"\nContenido de la cola de {nombre_cola} ({cola_seleccionada.Tamano()} paquetes):");
+
+                if (cola_seleccionada.ColaVacia())
+                {
+                    Console.WriteLine("(La cola está vacía)");
+                    Interfaz.Continuar();
+                    return;
+                }
+                else
+                {
+                    MostrarColaPaquetes(cola_seleccionada);
+                }
+
+                Console.Write("\n¿Está seguro que desea vaciar esta cola? (Si/No): ");
+                string confirmar = Console.ReadLine().Trim().ToLower();
+
+                if (confirmar == "si")
+                {
+                    cola_seleccionada.BorrarCola();
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"\nCola de {nombre_cola} vaciada correctamente.");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("\nOperación cancelada. La cola no se ha modificado.");
+                    Console.ResetColor();
+                }
+            }
+            else if (dispositivo is Router router)
+            {
+                Console.WriteLine("\nContenido de la cola del router:");
+
+                if (router.ColaPaquetes.ColaVacia())
+                {
+                    Console.WriteLine("(La cola está vacía)");
+                    Interfaz.Continuar();
+                    return;
+                }
+                else
+                {
+                    MostrarColaPaquetes(router.ColaPaquetes);
+                }
+
+                Console.Write("\n¿Está seguro que desea vaciar esta cola? (Si/No): ");
+                string confirmar = Console.ReadLine().Trim().ToLower();
+
+                if (confirmar == "si")
+                {
+                    router.ColaPaquetes.BorrarCola();
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("\nCola del router vaciada correctamente.");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("\nOperación cancelada. La cola no se ha modificado.");
+                    Console.ResetColor();
+                }
+            }
+
+            Interfaz.Continuar();
         }
 
         #endregion
