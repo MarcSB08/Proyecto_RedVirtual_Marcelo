@@ -10,7 +10,7 @@ namespace Proyecto_RedVirtual_Marcelo
     {
         #region Atributos
 
-        public int Numero { get; private set; }
+        public int Numero { get; set; }
         public PC PC { get; private set; }
         public Router Router { get; private set; }
 

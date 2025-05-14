@@ -619,7 +619,7 @@ namespace Proyecto_RedVirtual_Marcelo
         public void EliminarPaquete()  // Opcion 7
         {
             Console.Clear();
-            Console.WriteLine("=== ELIMINAR PAQUETE (SIMULAR PÉRDIDA EN TRANSMISIÓN) ===");
+            Console.WriteLine("=== ELIMINAR PAQUETE ===");
 
             if (SubRedes.Count == 0)
             {
@@ -639,16 +639,22 @@ namespace Proyecto_RedVirtual_Marcelo
             string ip_equipo = Console.ReadLine().Trim();
 
             Dispositivo equipo = null;
+            PC pc = null;
+            SubRed subred_seleccionada = null;
+
             foreach (var subred in SubRedes)
             {
                 if (subred.PC.IP == ip_equipo)
                 {
                     equipo = subred.PC;
+                    pc = subred.PC;
+                    subred_seleccionada = subred;
                     break;
                 }
                 if (subred.Router.IP == ip_equipo)
                 {
                     equipo = subred.Router;
+                    subred_seleccionada = subred;
                     break;
                 }
             }
@@ -660,15 +666,50 @@ namespace Proyecto_RedVirtual_Marcelo
                 return;
             }
 
-            Console.WriteLine($"\nPaquetes en cola de envío de {equipo.Tipo} {equipo.IP}:");
-            if (equipo.ColaPaquetes.ColaVacia())
+            Cola<Paquete> cola_seleccionada = null;
+            string tipo_cola = "envío";
+
+            if (equipo is PC)
             {
-                Interfaz.Error("El equipo no tiene paquetes en cola de envío.");
+                Console.WriteLine("\nSeleccione qué cola desea modificar:");
+                Console.WriteLine("1. Cola de Envío");
+                Console.WriteLine("2. Cola de Recibidos");
+                Console.Write("Opción: ");
+
+                string opcion_cola = Console.ReadLine().Trim();
+
+                switch (opcion_cola)
+                {
+                    case "1":
+                        cola_seleccionada = pc.ColaPaquetes;
+                        tipo_cola = "envío";
+                        break;
+
+                    case "2":
+                        cola_seleccionada = pc.ColaRecibidos;
+                        tipo_cola = "recibidos";
+                        break;
+
+                    default:
+                        Interfaz.Error("Opción no válida.");
+                        Interfaz.Continuar();
+                        return;
+                }
+            }
+            else
+            {
+                cola_seleccionada = equipo.ColaPaquetes;
+            }
+
+            Console.WriteLine($"\nPaquetes en cola de {tipo_cola} de {equipo.Tipo} {equipo.IP}:");
+            if (cola_seleccionada.ColaVacia())
+            {
+                Interfaz.Error($"El equipo no tiene paquetes en cola de {tipo_cola}.");
                 Interfaz.Continuar();
                 return;
             }
 
-            MostrarColaPaquetes(equipo.ColaPaquetes);
+            MostrarColaPaquetes(cola_seleccionada);
 
             Console.Write("\nIngrese el número de secuencia del paquete a eliminar: ");
             if (!int.TryParse(Console.ReadLine(), out int numero_secuencia) || numero_secuencia <= 0)
@@ -678,35 +719,76 @@ namespace Proyecto_RedVirtual_Marcelo
                 return;
             }
 
-            bool eliminado = false;
-            int capacidad_cola = (equipo is PC) ? 10 : 4;
-            var nueva_cola = new Cola<Paquete>(capacidad_cola);
+            Paquete paquete_a_eliminar = cola_seleccionada.ObtenerElementos().FirstOrDefault(p => p.NumeroSecuencia == numero_secuencia);
 
-            foreach (var paquete in equipo.ColaPaquetes.ObtenerElementos())
+            if (paquete_a_eliminar == null)
             {
-                if (paquete.NumeroSecuencia != numero_secuencia)
-                {
-                    nueva_cola.Insertar(paquete);
-                }
-                else
-                {
-                    eliminado = true;
-                    Console.WriteLine($"\nPaquete {numero_secuencia} eliminado de {equipo.IP} (simulando pérdida en transmisión)");
-                }
-            }
-
-            if (!eliminado)
-            {
-                Interfaz.Error($"No se encontró el paquete {numero_secuencia} en la cola de envío de {equipo.IP}");
+                Interfaz.Error($"No se encontró el paquete {numero_secuencia} en la cola de {tipo_cola} de {equipo.IP}");
                 Interfaz.Continuar();
                 return;
             }
 
-            equipo.ColaPaquetes = nueva_cola;
+            Console.WriteLine("\nInformación del paquete a eliminar:");
+            Console.WriteLine("----------------------------------");
+            Console.WriteLine($"- Número de secuencia: {paquete_a_eliminar.NumeroSecuencia}");
+            Console.WriteLine($"- Dato: {(paquete_a_eliminar.Dato == '\0' ? "[FIN]" : $"'{paquete_a_eliminar.Dato}'")}");
+            Console.WriteLine($"- Estado: {paquete_a_eliminar.Estado}");
+            Console.WriteLine($"- Origen: {paquete_a_eliminar.IPOrigen}");
+            Console.WriteLine($"- Destino: {paquete_a_eliminar.IPDestino}");
+            Console.WriteLine("----------------------------------");
 
-            Console.WriteLine("\nEstado actualizado de la cola de envío:");
-            MostrarColaPaquetes(equipo.ColaPaquetes);
+            Console.Write("\n¿Está seguro que desea eliminar este paquete? (Si/No): ");
+            string confirmacion = Console.ReadLine().Trim().ToLower();
 
+            if (confirmacion == "no")
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("\nOperación cancelada. El paquete no fue eliminado.");
+                Console.ResetColor();
+                Interfaz.Continuar();
+                return;
+            }
+            else if (confirmacion == "si")
+            {
+                int capacidad_cola = (equipo is PC) ? 10 : 4;
+                var nueva_cola = new Cola<Paquete>(capacidad_cola);
+                bool eliminado = false;
+
+                foreach (var paquete in cola_seleccionada.ObtenerElementos())
+                {
+                    if (paquete.NumeroSecuencia != numero_secuencia)
+                    {
+                        nueva_cola.Insertar(paquete);
+                    }
+                    else
+                    {
+                        eliminado = true;
+                    }
+                }
+
+                if (equipo is PC && tipo_cola == "recibidos")
+                {
+                    pc.ColaRecibidos = nueva_cola;
+                }
+                else
+                {
+                    equipo.ColaPaquetes = nueva_cola;
+                }
+
+                if (eliminado)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"\nPaquete {numero_secuencia} eliminado de {equipo.IP} (simulando pérdida en transmisión)");
+                    Console.ResetColor();
+
+                    Console.WriteLine("\nEstado actualizado de la cola:");
+                    MostrarColaPaquetes(nueva_cola);
+                }
+            }
+            else
+            {
+                Interfaz.Error("Opción no válida. El paquete no fue eliminado.");
+            }
             Interfaz.Continuar();
         }
 
@@ -873,7 +955,7 @@ namespace Proyecto_RedVirtual_Marcelo
             Console.WriteLine("══════════════════════════════════════\n");
         }
 
-        public void VaciarColaDispositivo()
+        public void VaciarColaDispositivo()  // Opcion 10 (extra)
         {
             Console.Clear();
             Console.WriteLine("=== VACIAR COLA DE DISPOSITIVO ===");
@@ -1014,6 +1096,134 @@ namespace Proyecto_RedVirtual_Marcelo
             }
 
             Interfaz.Continuar();
+        }
+
+        public void EliminarSubred()  // Opcion 11 (extra)
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine("=== ELIMINAR SUBRED ===");
+            Console.ResetColor();
+
+            if (SubRedes.Count == 0)
+            {
+                Interfaz.Error("No hay subredes configuradas.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            Console.WriteLine("\nSubredes disponibles:");
+            foreach (var subred in SubRedes)
+            {
+                Console.WriteLine($"- Subred {subred.Numero}: Router {subred.Router.IP}, PC {subred.PC.IP}");
+            }
+
+            Console.Write("\nIngrese el número de la subred a eliminar: ");
+            if (!int.TryParse(Console.ReadLine(), out int numero_subred) || numero_subred <= 0 || numero_subred > SubRedes.Count)
+            {
+                Interfaz.Error("Número de subred inválido.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            var subred_a_eliminar = SubRedes[numero_subred - 1];
+
+            Console.WriteLine("\nInformación de la SubRed a eliminar:");
+            Console.WriteLine("----------------------------------");
+            Console.WriteLine($"- Número: {subred_a_eliminar.Numero}");
+            Console.WriteLine($"- Router: {subred_a_eliminar.Router.IP}");
+            Console.WriteLine($"- PC: {subred_a_eliminar.PC.IP}");
+            Console.WriteLine($"- Paquetes en router: {subred_a_eliminar.Router.ColaPaquetes.Tamano()}");
+            Console.WriteLine($"- Paquetes en PC (envío): {subred_a_eliminar.PC.ColaPaquetes.Tamano()}");
+            Console.WriteLine($"- Paquetes en PC (recibidos): {subred_a_eliminar.PC.ColaRecibidos.Tamano()}");
+            Console.WriteLine("----------------------------------");
+
+            Console.Write("\n¿Está SEGURO que desea eliminar esta subred y TODOS sus paquetes? (Si/No): ");
+            string confirmar = Console.ReadLine().Trim().ToLower();
+
+            if (confirmar == "no")
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("\nOperación cancelada. La SubRed no fue eliminada.");
+                Console.ResetColor();
+                Interfaz.Continuar();
+                return;
+            }
+            else if (confirmar == "si")
+            {
+
+                SubRedes.RemoveAt(numero_subred - 1);
+
+                for (int i = 0; i < SubRedes.Count; i++)
+                {
+                    SubRedes[i].Numero = i + 1;
+                }
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"\nSubred {numero_subred} eliminada correctamente con todos sus dispositivos y paquetes.");
+                Console.ResetColor();
+            }
+            else
+            {
+                Interfaz.Error("Opción no válida. La subred no fue eliminada.");
+            }
+            Interfaz.Continuar();
+        }
+
+        public void EliminarTodaLaRed()  // Opcion 12 (extra)
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine("=== ELIMINAR TODA LA RED ===");
+            Console.ResetColor();
+
+            if (SubRedes.Count == 0)
+            {
+                Interfaz.Error("No hay red configurada para eliminar.");
+                Interfaz.Continuar();
+                return;
+            }
+
+            Console.WriteLine("\nResumen de la red actual:");
+            Console.WriteLine("-------------------------");
+            Console.WriteLine($"- Total de Subredes: {SubRedes.Count}");
+
+            int total_paquetes = 0;
+            foreach (var subred in SubRedes)
+            {
+                total_paquetes += subred.Router.ColaPaquetes.Tamano();
+                total_paquetes += subred.PC.ColaPaquetes.Tamano();
+                total_paquetes += subred.PC.ColaRecibidos.Tamano();
+            }
+            Console.WriteLine($"- Total de paquetes en toda la red: {total_paquetes}");
+            Console.WriteLine("-------------------------");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("\n¿Está ABSOLUTAMENTE SEGURO que desea eliminar TODA LA RED? (Si/No): ");
+            Console.ResetColor();
+            string confirmar = Console.ReadLine().Trim().ToLower();
+
+            if (confirmar == "no")
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("\nOperación cancelada. La red no fue modificada.");
+                Console.ResetColor();
+                Interfaz.Continuar();
+                return;
+            }
+            else if (confirmar == "si")
+            {
+                SubRedes.Clear();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("\n¡Toda la red ha sido eliminada correctamente!");
+                Console.ResetColor();
+                Interfaz.Continuar();
+            }
+            else
+            {
+                Interfaz.Error("Opción no válida. La red no fue eliminada.");
+                Interfaz.Continuar();
+            }
         }
 
         #endregion

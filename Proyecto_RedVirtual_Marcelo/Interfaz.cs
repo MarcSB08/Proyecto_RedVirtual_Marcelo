@@ -33,6 +33,8 @@ namespace Proyecto_RedVirtual_Marcelo
             Console.ForegroundColor = ConsoleColor.Cyan;
             xy(65, 11); Console.WriteLine("FUNCIONES EXTRA:"); Console.ResetColor();
             xy(65, 12); Console.WriteLine("10. Vaciar cola de un dispositivo");
+            xy(65, 13); Console.WriteLine("11. Eliminar subred específica");
+            xy(65, 14); Console.WriteLine("12. Eliminar toda la red");
             xy(15, 20); Console.WriteLine("0. Salir");
             xy(8, 23); Console.Write("-Opción: ");
 
