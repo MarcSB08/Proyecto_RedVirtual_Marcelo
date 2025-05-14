@@ -960,7 +960,7 @@ namespace Proyecto_RedVirtual_Marcelo
             return (false, 0, null);
         }
 
-        private void MostrarInfoPaquete((bool Encontrado, int Posicion, Paquete Paquete) info, Dispositivo dispositivo, string tipoCola = "Cola de Paquetes")
+        private void MostrarInfoPaquete((bool Encontrado, int Posicion, Paquete Paquete) info, Dispositivo dispositivo, string tipo_cola = "Cola de Paquetes")
         {
             Console.WriteLine("\n══════════════════════════════════════");
             Console.WriteLine("  INFORMACIÓN DEL PAQUETE ENCONTRADO");
@@ -972,7 +972,7 @@ namespace Proyecto_RedVirtual_Marcelo
             Console.WriteLine($"- Destino: {info.Paquete.IPDestino}");
             Console.WriteLine($"\n- Ubicación actual:");
             Console.WriteLine($"  > Equipo: {dispositivo.IP} ({dispositivo.Tipo})");
-            Console.WriteLine($"  > Cola: {tipoCola}");
+            Console.WriteLine($"  > Cola: {tipo_cola}");
             Console.WriteLine($"  > Posición: {info.Posicion} de {dispositivo.ColaPaquetes.Tamano()}");
             Console.WriteLine("══════════════════════════════════════\n");
         }

@@ -12,7 +12,6 @@ namespace Proyecto_RedVirtual_Marcelo
 
         public Cola<Paquete> ColaRecibidos { get; set; }
         public List<Mensaje> MensajesRecibidos { get; private set; }
-        public Dictionary<string, Mensaje> MensajesEnProceso { get; private set; }
 
         #endregion
 
@@ -97,26 +96,6 @@ namespace Proyecto_RedVirtual_Marcelo
                     ColaRecibidos = nueva_cola;
                 }
             }
-        }
-
-        public string ObtenerMensajesRecibidos()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine($"Mensajes recibidos en PC {IP}:");
-
-            if (MensajesRecibidos.Count == 0)
-            {
-                sb.AppendLine("No hay mensajes recibidos");
-            }
-            else
-            {
-                foreach (var mensaje in MensajesRecibidos)
-                {
-                    sb.AppendLine($"{mensaje.IPOrigen} -> {mensaje.Dato} - Estado: {mensaje.Estado}");
-                }
-            }
-
-            return sb.ToString();
         }
 
         public override string ObtenerStatus()

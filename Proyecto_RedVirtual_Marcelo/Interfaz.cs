@@ -20,23 +20,23 @@ namespace Proyecto_RedVirtual_Marcelo
 
             Titulo();
             Console.ResetColor();
-            xy(15, 11); Console.WriteLine("1. Configurar red de comunicación");
-            xy(15, 12); Console.WriteLine("2. Crear un mensaje");
-            xy(15, 13); Console.WriteLine("3. Enviar un mensaje");
-            xy(15, 14); Console.WriteLine("4. Mostrar el status de la red");
-            xy(15, 15); Console.WriteLine("5. Mostrar el status de la subred");
-            xy(15, 16); Console.WriteLine("6. Mostrar el status de un equipo");
-            xy(15, 17); Console.WriteLine("7. Eliminar un paquete de la cola");
-            xy(15, 18); Console.WriteLine("8. Visualizar mensajes recibidos");
-            xy(15, 19); Console.WriteLine("9. Consultar información de un paquete");
+            XY(15, 11); Console.WriteLine("1. Configurar red de comunicación");
+            XY(15, 12); Console.WriteLine("2. Crear un mensaje");
+            XY(15, 13); Console.WriteLine("3. Enviar un mensaje");
+            XY(15, 14); Console.WriteLine("4. Mostrar el status de la red");
+            XY(15, 15); Console.WriteLine("5. Mostrar el status de la subred");
+            XY(15, 16); Console.WriteLine("6. Mostrar el status de un equipo");
+            XY(15, 17); Console.WriteLine("7. Eliminar un paquete de la cola");
+            XY(15, 18); Console.WriteLine("8. Visualizar mensajes recibidos");
+            XY(15, 19); Console.WriteLine("9. Consultar información de un paquete");
 
             Console.ForegroundColor = ConsoleColor.Cyan;
-            xy(65, 11); Console.WriteLine("FUNCIONES EXTRA:"); Console.ResetColor();
-            xy(65, 12); Console.WriteLine("10. Vaciar cola de un dispositivo");
-            xy(65, 13); Console.WriteLine("11. Eliminar subred específica");
-            xy(65, 14); Console.WriteLine("12. Eliminar toda la red");
-            xy(15, 20); Console.WriteLine("0. Salir");
-            xy(8, 23); Console.Write("-Opción: ");
+            XY(65, 11); Console.WriteLine("FUNCIONES EXTRA:"); Console.ResetColor();
+            XY(65, 12); Console.WriteLine("10. Vaciar cola de un dispositivo");
+            XY(65, 13); Console.WriteLine("11. Eliminar subred específica");
+            XY(65, 14); Console.WriteLine("12. Eliminar toda la red");
+            XY(15, 20); Console.WriteLine("0. Salir");
+            XY(8, 23); Console.Write("-Opción: ");
 
             string opcion = Console.ReadLine();
             return opcion;
@@ -79,12 +79,12 @@ namespace Proyecto_RedVirtual_Marcelo
 
         public static void Titulo()
         {
-            xy(16, 4); Console.WriteLine("██████╗ ███████╗██████╗      ██╗   ██╗██╗██████╗ ████████╗██╗   ██╗ █████╗ ██╗     ");
-            xy(16, 5); Console.WriteLine("██╔══██╗██╔════╝██╔══██╗     ██║   ██║██║██╔══██╗╚══██╔══╝██║   ██║██╔══██╗██║     ");
-            xy(16, 6); Console.WriteLine("██████╔╝█████╗  ██║  ██║     ██║   ██║██║██████╔╝   ██║   ██║   ██║███████║██║     ");
-            xy(16, 7); Console.WriteLine("██╔══██╗██╔══╝  ██║  ██║     ╚██╗ ██╔╝██║██╔══██╗   ██║   ██║   ██║██╔══██║██║     ");
-            xy(16, 8); Console.WriteLine("██║  ██║███████╗██████╔╝      ╚████╔╝ ██║██║  ██║   ██║   ╚██████╔╝██║  ██║███████╗");
-            xy(16, 9); Console.WriteLine("╚═╝  ╚═╝╚══════╝╚═════╝        ╚═══╝  ╚═╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝");
+            XY(16, 4); Console.WriteLine("██████╗ ███████╗██████╗      ██╗   ██╗██╗██████╗ ████████╗██╗   ██╗ █████╗ ██╗     ");
+            XY(16, 5); Console.WriteLine("██╔══██╗██╔════╝██╔══██╗     ██║   ██║██║██╔══██╗╚══██╔══╝██║   ██║██╔══██╗██║     ");
+            XY(16, 6); Console.WriteLine("██████╔╝█████╗  ██║  ██║     ██║   ██║██║██████╔╝   ██║   ██║   ██║███████║██║     ");
+            XY(16, 7); Console.WriteLine("██╔══██╗██╔══╝  ██║  ██║     ╚██╗ ██╔╝██║██╔══██╗   ██║   ██║   ██║██╔══██║██║     ");
+            XY(16, 8); Console.WriteLine("██║  ██║███████╗██████╔╝      ╚████╔╝ ██║██║  ██║   ██║   ╚██████╔╝██║  ██║███████╗");
+            XY(16, 9); Console.WriteLine("╚═╝  ╚═╝╚══════╝╚═════╝        ╚═══╝  ╚═╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝");
         }
 
         public static void Adios()
@@ -92,12 +92,12 @@ namespace Proyecto_RedVirtual_Marcelo
             int x = 15, y = 10;
 
             Console.Clear();
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("    _       _ _               ____  ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("   / \\   __| (_) ___  ___   _|  _ \\ ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("  / _ \\ / _` | |/ _ \\ __| (_) | | |");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine(" / ___ \\ (_| | | (_) \\__\\  _| |_| |");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("/_/     \\__,_|_||___/|___/ (_)____/ ");
-            Thread.Sleep(50); xy(x, y++); Console.ResetColor();
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("    _       _ _               ____  ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("   / \\   __| (_) ___  ___   _|  _ \\ ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("  / _ \\ / _` | |/ _ \\ __| (_) | | |");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine(" / ___ \\ (_| | | (_) \\__\\  _| |_| |");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("/_/     \\__,_|_||___/|___/ (_)____/ ");
+            Thread.Sleep(50); XY(x, y++); Console.ResetColor();
         }
 
         public static void ImprimirLogoUSM()
@@ -106,26 +106,26 @@ namespace Proyecto_RedVirtual_Marcelo
             Console.ForegroundColor = ConsoleColor.Blue;
             Borde();
 
-            Thread.Sleep(50); xy(x, y); Console.WriteLine("         .+%%%%%%+.=#%%%%#:+%%%%%%%%%%%-        ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("      .+%%%%%%*.-#%%%%%:=%%%%%%%%%%%%#-.      ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("     .+%%%%%%%::*%%%%%--%%%%%%%%%%%%%%#-.     ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("    .+%%%%%%%-.*%%%%%=:%%%%#==++++++++++:.    ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("   .+%%%%%%%+.+%%%%%+:#%%%%==%%%%%%%%%%%#-.   ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("  .=%%%%%%%%++%%%%%*:*%%%%+-%%%%%%%%%%%%%%-.  ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine(" .:*%%%%%%%%%%%%%%#:+%%%%*-#%%%%%%%%%%%%%%#:. ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("  .:*%%%%%%%%%%%%#-+%%%%#:*%%%%%%%%%%%%%%%=.  ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("    .+%%%%%%%%%%#=-#%%%%-+%%*+%#=*%%%%%%%=.   ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("     .:==========+#%%%%-=%%*-*%=:#%%%%%%+.    ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("      :*%%%%%%%%%%%%%%=:%%#-+%*:*%%%%%%+.     ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("       .+%%%%%%%%%%%%*:%%%=-%%--%%%%%%*.      ");
-            Thread.Sleep(50); xy(x, y++); Console.WriteLine("        .=%%%%%%%%%%#:#%%+:#%+:*%%%%%*.       ");
+            Thread.Sleep(50); XY(x, y); Console.WriteLine("         .+%%%%%%+.=#%%%%#:+%%%%%%%%%%%-        ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("      .+%%%%%%*.-#%%%%%:=%%%%%%%%%%%%#-.      ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("     .+%%%%%%%::*%%%%%--%%%%%%%%%%%%%%#-.     ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("    .+%%%%%%%-.*%%%%%=:%%%%#==++++++++++:.    ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("   .+%%%%%%%+.+%%%%%+:#%%%%==%%%%%%%%%%%#-.   ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("  .=%%%%%%%%++%%%%%*:*%%%%+-%%%%%%%%%%%%%%-.  ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine(" .:*%%%%%%%%%%%%%%#:+%%%%*-#%%%%%%%%%%%%%%#:. ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("  .:*%%%%%%%%%%%%#-+%%%%#:*%%%%%%%%%%%%%%%=.  ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("    .+%%%%%%%%%%#=-#%%%%-+%%*+%#=*%%%%%%%=.   ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("     .:==========+#%%%%-=%%*-*%=:#%%%%%%+.    ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("      :*%%%%%%%%%%%%%%=:%%#-+%*:*%%%%%%+.     ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("       .+%%%%%%%%%%%%*:%%%=-%%--%%%%%%*.      ");
+            Thread.Sleep(50); XY(x, y++); Console.WriteLine("        .=%%%%%%%%%%#:#%%+:#%+:*%%%%%*.       ");
 
             Console.ResetColor();
-            xy(x, y++); Console.ReadKey();
+            XY(x, y++); Console.ReadKey();
             Console.Clear();
         }
 
-        public static void xy(int x, int y)
+        public static void XY(int x, int y)
         {
             Console.SetCursorPosition(x, y);
         }

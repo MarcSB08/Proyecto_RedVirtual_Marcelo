@@ -89,15 +89,6 @@ namespace Proyecto_RedVirtual_Marcelo
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public bool Contiene(Func<T, bool> predicado)
-        {
-            for (int i = Frente; i <= Final; i++)
-            {
-                if (predicado(ListaCola[i])) return true;
-            }
-            return false;
-        }
-
         public List<T> ObtenerElementos()
         {
             var elementos = new List<T>();
