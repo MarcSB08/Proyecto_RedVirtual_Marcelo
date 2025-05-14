@@ -230,13 +230,15 @@ namespace Proyecto_RedVirtual_Marcelo
         public void EnviarPaquetes()  //Opcion 3
         {
             Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkMagenta;
             Console.WriteLine("=== ENVIAR PAQUETES ===");
+            Console.ResetColor();
 
 
             if (SubRedes.Count < 2)
             {
                 Console.WriteLine();
-                Interfaz.Error("Se necesitan al menos 2 subredes configuradas");
+                Interfaz.Error("Se necesitan al menos 2 subredes configuradas\n");
                 Interfaz.Continuar();
                 return;
             }
@@ -372,7 +374,9 @@ namespace Proyecto_RedVirtual_Marcelo
             if (SubRedes.Count == 0)
             {
                 Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("=== ESTADO DE LA RED ===");
+                Console.ResetColor();
                 Console.WriteLine("\nNo hay subredes configuradas.");
                 Interfaz.Continuar();
                 return;
@@ -382,20 +386,28 @@ namespace Proyecto_RedVirtual_Marcelo
             while (indice_subred < SubRedes.Count)
             {
                 Console.Clear();
+                Console.ForegroundColor = ConsoleColor.DarkCyan;
                 Console.WriteLine("=== ESTADO DE LA RED ===");
+                Console.ResetColor();
                 Console.WriteLine($"\nMostrando SubRed {indice_subred + 1} de {SubRedes.Count}\n");
 
                 var subred = SubRedes[indice_subred];
 
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine($"═══════════════════════════════");
                 Console.WriteLine($"       [ SUBRED {subred.Numero} ]");
                 Console.WriteLine($"═══════════════════════════════");
+                Console.ResetColor();
 
+                Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine($"\nROUTER {subred.Router.IP}");
+                Console.ResetColor();
                 Console.WriteLine($"Paquetes en cola ({subred.Router.ColaPaquetes.Tamano()}/4):");
                 MostrarColaPaquetes(subred.Router.ColaPaquetes);
 
+                Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine($"\nPC {subred.PC.IP}");
+                Console.ResetColor();
                 Console.WriteLine($"Paquetes para enviar ({subred.PC.ColaPaquetes.Tamano()}/10):");
                 MostrarColaPaquetes(subred.PC.ColaPaquetes);
 
@@ -460,7 +472,9 @@ namespace Proyecto_RedVirtual_Marcelo
         public void MostrarStatusSubRed()  // Opcion 5
         {
             Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkCyan;
             Console.WriteLine("=== ESTADO DE SUBRED ===");
+            Console.ResetColor();
 
             if (SubRedes.Count == 0)
             {
@@ -538,7 +552,9 @@ namespace Proyecto_RedVirtual_Marcelo
         public void MostrarStatusEquipo()  // Opcion 6
         {
             Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkCyan;
             Console.WriteLine("=== ESTADO DE EQUIPO ===");
+            Console.ResetColor();
 
             if (SubRedes.Count == 0)
             {
@@ -619,7 +635,9 @@ namespace Proyecto_RedVirtual_Marcelo
         public void EliminarPaquete()  // Opcion 7
         {
             Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("=== ELIMINAR PAQUETE ===");
+            Console.ResetColor();
 
             if (SubRedes.Count == 0)
             {
@@ -795,7 +813,9 @@ namespace Proyecto_RedVirtual_Marcelo
         public void VisualizarMensajesRecibidos()  // Opcion 8
         {
             Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Magenta;
             Console.WriteLine("=== MENSAJES RECIBIDOS ===");
+            Console.ResetColor();
 
             if (SubRedes.Count == 0)
             {
@@ -866,7 +886,9 @@ namespace Proyecto_RedVirtual_Marcelo
         public void ConsultarPaquete()  // Opcion 9
         {
             Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.WriteLine("=== CONSULTAR PAQUETE ===");
+            Console.ResetColor();
 
             if (SubRedes.Count == 0)
             {
@@ -958,7 +980,9 @@ namespace Proyecto_RedVirtual_Marcelo
         public void VaciarColaDispositivo()  // Opcion 10 (extra)
         {
             Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("=== VACIAR COLA DE DISPOSITIVO ===");
+            Console.ResetColor();
 
             if (SubRedes.Count == 0)
             {
