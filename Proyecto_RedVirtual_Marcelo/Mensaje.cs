@@ -42,39 +42,25 @@ namespace Proyecto_RedVirtual_Marcelo
         {
             if (Estado == "Dañado") return false;
 
-            var paquetes_contenido = Paquetes.Where(p => p.Dato != '\0').ToList();
+            var paquetes_contenido = Paquetes.Where(p => p.Dato != '\0').OrderBy(p => p.NumeroSecuencia).ToList();
 
-            if (paquetes_contenido.Count != Dato.Length)
-            {
-                Estado = "Dañado";
-                return false;
-            }
-
+            bool secuencia_correcta = true;
             for (int i = 0; i < paquetes_contenido.Count; i++)
             {
                 if (paquetes_contenido[i].NumeroSecuencia != i + 1)
                 {
-                    Estado = "Dañado";
-                    return false;
+                    secuencia_correcta = false;
+                    break;
                 }
             }
 
-            string mensaje_reconstruido = new string(paquetes_contenido.OrderBy(p => p.NumeroSecuencia).Select(p => p.Dato).ToArray());
+            string mensaje_recibido = string.Concat(paquetes_contenido.Select(p => p.Dato));
+            bool contenido_correcto = mensaje_recibido == Dato;
+            bool tiene_terminador = Paquetes.Any(p => p.Dato == '\0');
 
-            if (mensaje_reconstruido != Dato)
-            {
-                Estado = "Dañado";
-                return false;
-            }
+            Estado = (secuencia_correcta && contenido_correcto && tiene_terminador) ? "Recibido" : "Dañado";
 
-            if (!Paquetes.Any(p => p.Dato == '\0'))
-            {
-                Estado = "Dañado";
-                return false;
-            }
-
-            Estado = "Recibido";
-            return true;
+            return Estado == "Recibido";
         }
 
         #endregion

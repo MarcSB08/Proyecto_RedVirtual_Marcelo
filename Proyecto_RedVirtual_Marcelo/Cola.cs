@@ -14,7 +14,7 @@ namespace Proyecto_RedVirtual_Marcelo
         private readonly T[] ListaCola;
         public readonly int MaxTam;
 
-        public Cola(int tamano = 10)
+        public Cola(int tamano = 39)
         {
             MaxTam = tamano;
             ListaCola = new T[MaxTam];
